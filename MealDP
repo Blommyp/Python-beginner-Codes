@@ -1,0 +1,217 @@
+import requests
+from colorama import Fore, Style
+
+def search_meal_by_name(name):
+    url = f"https://www.themealdb.com/api/json/v1/1/search.php?s={name}"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'] if 'meals' in data else None
+
+def list_meals_by_first_letter(letter):
+    url = f"https://www.themealdb.com/api/json/v1/1/search.php?f={letter}"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'] if 'meals' in data else None
+
+def lookup_full_meal_details(meal_id):
+    url = f"https://www.themealdb.com/api/json/v1/1/lookup.php?i={meal_id}"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'][0] if 'meals' in data else None
+
+def get_random_meal():
+    url = "https://www.themealdb.com/api/json/v1/1/random.php"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'][0] if 'meals' in data else None
+
+def list_meal_categories():
+    url = "https://www.themealdb.com/api/json/v1/1/categories.php"
+    response = requests.get(url)
+    data = response.json()
+    return [category['strCategory'] for category in data['categories']] if 'categories' in data else None
+
+def list_all_categories():
+    url = "https://www.themealdb.com/api/json/v1/1/list.php?c=list"
+    response = requests.get(url)
+    data = response.json()
+    return [category['strCategory'] for category in data['meals']] if 'meals' in data else None
+
+def list_areas():
+    url = "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
+    response = requests.get(url)
+    data = response.json()
+    return [area['strArea'] for area in data['meals']] if 'meals' in data else None
+
+def list_all_ingredients():
+    url = "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
+    response = requests.get(url)
+    data = response.json()
+    return [ingredient['strIngredient'] for ingredient in data['meals']] if 'meals' in data else None
+
+def filter_by_main_ingredient(ingredient):
+    url = f"https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredient}"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'] if 'meals' in data else None
+
+def filter_by_category(category):
+    url = f"https://www.themealdb.com/api/json/v1/1/filter.php?c={category}"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'] if 'meals' in data else None
+
+def filter_by_area(area):
+    url = f"https://www.themealdb.com/api/json/v1/1/filter.php?a={area}"
+    response = requests.get(url)
+    data = response.json()
+    return data['meals'] if 'meals' in data else None
+
+def main():
+    print(Fore.CYAN + "Welcome to the Meal Finder!")
+    while True:
+        print(Fore.GREEN + "\nChoose an option:")
+        print(Fore.YELLOW + "1. Search meal by name")
+        print("2. List all meals by first letter")
+        print("3. Lookup full meal details by id")
+        print("4. Lookup a single random meal")
+        print("5. List meal categories")
+        print("6. List all categories")
+        print("7. List meal areas")
+        print("8. List all ingredients")
+        print("9. Filter by main ingredient")
+        print("10. Filter by category")
+        print("11. Filter by area")
+        print("12. Exit")
+
+      # Include other menu options for brevity
+
+        choice = input(Fore.GREEN + "Enter your choice (1-12): ")
+
+        if choice == '1':
+            name = input("Enter the meal name: ")
+            meals = search_meal_by_name(name)
+            if meals:
+                   for meal in meals:
+                    print(f"{Fore.GREEN}Name: {meal['strMeal']}")
+                    print(f"MealID: {meal['idMeal']}")
+                    print(f"Category: {meal['strCategory']}")
+                    print(f"Area: {meal['strArea']}")
+                    print(f"{Fore.CYAN}Instruction: {meal['strInstructions']}")
+                    print("_______________")                              
+            else:
+                print(Fore.RED + "No meals found for the given name.")
+
+
+        elif choice == '2':
+            letter = input("Enter the first letter: ")
+            meals = list_meals_by_first_letter(letter)
+            if meals:
+                for meal in meals:
+                    print(meal['strMeal'])
+            else:
+                print(Fore.RED + "No meals found for the given letter.")
+
+
+        elif choice == '3':
+            meal_id = input("Enter the meal ID: ")
+            try:
+                meal = lookup_full_meal_details(meal_id)
+                if meal:
+                    print(meal['strMeal'])
+                else:
+                    print("No meal found for the given ID.")
+            except Exception as e:
+                print(Fore.RED + "An error occurred: ")
+                print(e)
+
+
+        elif choice == '4':
+            meal = get_random_meal()
+            if meal:
+                print("Meal ID:", meal['idMeal'])
+                print("Category:", meal['strCategory'])
+                print("Area:", meal['strArea'])
+                print("Ingredients:")
+                for i in range(1, 21):
+                      ingredient_key = f"strIngredient{i}"
+                      measure_key = f"strMeasure{i}"
+                      ingredient = meal.get(ingredient_key)
+                      measure = meal.get(measure_key)
+                      if ingredient and measure:
+                          print(f"- {ingredient} ({measure})")
+                      else:
+                          break  # No more ingredients available
+            else:
+                print("Failed to fetch a random meal.")
+
+
+        elif choice == '5':
+            categories = list_meal_categories()
+            if categories:
+                for category in categories:
+                    print(category)
+            else:
+                print("Failed to fetch meal categories.")
+
+
+        elif choice == '6':
+            all_categories = list_all_categories()
+            if all_categories:
+                for category in all_categories:
+                    print(category)
+            else:
+                print("Failed to fetch all categories.")
+
+
+        elif choice == '7':
+            areas = list_areas()
+            if areas:
+                for area in areas:
+                    print(area)
+            else:
+                print("Failed to fetch meal areas.")
+
+
+        elif choice == '8':
+            ingredients = list_all_ingredients()
+            if ingredients:
+                for ingredient in ingredients:
+                    print(ingredient)
+            else:
+                print(Fore.RED + "Failed to fetch all ingredients.")
+
+        elif choice == '9':
+            ingredient = input("Enter the main ingredient: ")
+            meals = filter_by_main_ingredient(ingredient)
+            if meals:
+                for meal in meals:
+                    print(meal['strMeal'])
+            else:
+                print(f"{Fore.RED}No meals found for the ingredient: {ingredient}.")
+
+        elif choice == '10':
+            category = input("Enter the category: ")
+            meals = filter_by_category(category)
+            if meals:
+                for meal in meals:
+                    print(meal['strMeal'])
+            else:
+                print(Fore.RED + "No meals found for the given category.")
+
+        elif choice == '11':
+            area = input("Enter the area: ")
+            meals = filter_by_area(area)
+            if meals:
+                for meal in meals:
+                    print(meal['strMeal'])
+            else:
+                print(Fore.RED + "No meals found for the given area.")
+
+        elif choice == '12':
+            print(Fore.CYAN + "Exiting the Meal Finder. Goodbye!")
+            break
+
+
+if __name__ == "__main__":
+  main()
